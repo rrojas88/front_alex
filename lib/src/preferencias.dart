@@ -47,5 +47,12 @@ class Preferencias {
     _prefs.setString('token', value);
   }
 
+  get url {
+    return _prefs.getString('url') ?? '';
+  }
+  set url( String value ){
+    _prefs.setString('url', value);
+  }
+
 }
 

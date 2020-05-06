@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 
-import 'dart:ffi';
 import 'dart:io';
 
 import 'dart:convert';
@@ -9,7 +8,6 @@ import 'package:http/http.dart' as http;
 
 import 'package:front_alex/src/preferencias.dart';
 import 'package:front_alex/src/config.dart';
-import 'package:front_alex/src/static.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -24,10 +22,12 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _nickCTRL = new TextEditingController();
   TextEditingController _passCTRL = new TextEditingController();
   TextEditingController _fraseCTRL = new TextEditingController();
+  TextEditingController _urlCTRL = new TextEditingController();
 
   String _nick = '';
   String _pass = '';
   String _frase = '';
+  String _url = '';
 
   String _nick_helper = '';
   String _pass_helper = '';
@@ -77,6 +77,9 @@ class _LoginPageState extends State<LoginPage> {
     _frase = prefs.frase;
     _fraseCTRL.text = _frase;
 
+    _url = prefs.url;
+    _urlCTRL.text = _url;
+
     setState(() {  });
   }
 
@@ -86,18 +89,19 @@ class _LoginPageState extends State<LoginPage> {
     /// Tambien usar el plugin: https://pub.dev/packages/back_button_interceptor
 
     return WillPopScope(
-          onWillPop: _presionoSalir,
+      onWillPop: _presionoSalir,
 
-          child: Scaffold(
-          /*appBar: AppBar(
-            title: Text('Login'),
-          ),*/
-          body: Stack(
-            children: <Widget>[
-              _crearFondo( context ),
-              _crearFormLogin( context ),
-            ],
-          ),
+      child: Scaffold(
+        /*appBar: AppBar(
+          title: Text('Login'),
+        ),*/
+        body: Stack(
+          children: <Widget>[
+            _crearFondo( context ),
+            _crearFormLogin( context ),
+            SizedBox( height: 60.0 )
+          ],
+        ),
       ),
     );
   }
@@ -138,10 +142,14 @@ class _LoginPageState extends State<LoginPage> {
             ),
             child: Column(
               children: <Widget>[
+                //Icon( Icons.assignment, size: 40.0, color: Colors.green ),
+                _creaBotonConfiguracion( context ),
+                SizedBox( height: 30.0 ),
+
                 Text(
                    'ACCESO',
                    style: TextStyle(
-                     fontSize: 20.0
+                     fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.green
                    ),
                 ),
 
@@ -165,6 +173,21 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
+  }
+
+  Widget _creaBotonConfiguracion(BuildContext context){
+    return RaisedButton.icon(
+      icon: Icon( Icons.settings, size: 30.0 ),
+      label: Text('Servidor'),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0)
+      ),
+      color: Colors.green,
+      textColor: Colors.white,
+      onPressed: ( ) { 
+        _modalServer( context );
+      }
+    ); 
   }
 
   Widget _crearNick(){
@@ -238,8 +261,6 @@ class _LoginPageState extends State<LoginPage> {
 
       child: TextField(
         controller: _fraseCTRL,
-
-        autofocus: true,
 
         cursorColor: Colors.green,
         decoration: InputDecoration(
@@ -408,7 +429,7 @@ class _LoginPageState extends State<LoginPage> {
       _verMensaje( size.width * 0.5, 10.0, 'Comprobando.. por favor espere..');
 
       try {
-        String url_base = config['url_base'];
+        String url_base = _url + config['url_base'];
 
         var uriResponse = await http.post('$url_base/users/login',
           body: {
@@ -472,6 +493,67 @@ class _LoginPageState extends State<LoginPage> {
     _msgServer = mensaje;
 
     setState(() {  });
+  }
+
+
+  Future<bool>  _modalServer(BuildContext context){
+
+    return showDialog(
+      context: context,
+      builder: ( BuildContext context ){
+        return AlertDialog(
+          title: Text('Configurar Servidor'),
+          //content: Text('URL'),
+          actions: <Widget>[
+            _crearUrl( context ),
+            SizedBox( height: 30.0 ),
+            Center(
+              child: FlatButton(
+                child: Text('Guardar'),
+                onPressed: () {
+                  prefs.url = _url;
+
+                  Navigator.of(context).pop( false );
+                }
+              ),
+            ),
+            SizedBox( height: 30.0 ),
+            Center(
+              child: FlatButton(
+                child: Text('Cancelar'),
+                onPressed: () => Navigator.of(context).pop( false )
+              ),
+            ),
+            SizedBox( height: 30.0 )
+          ],
+        );
+      }
+    );
+  }
+
+  Widget _crearUrl( BuildContext context ){
+    final size = MediaQuery.of( context ).size;
+    return Container(
+      padding: EdgeInsets.symmetric( horizontal: 20.0 ),
+      width: size.width * 0.8,
+      child: TextField(
+        controller: _urlCTRL,
+
+        cursorColor: Colors.green,
+        decoration: InputDecoration(
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color:Colors.green
+            ),
+          ),
+          labelText: 'URL',
+          labelStyle: TextStyle( color: Colors.green )
+        ),
+        onChanged: (valor){
+          _url = valor;
+        },
+      )
+    );
   }
 
 

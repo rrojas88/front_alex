@@ -7,7 +7,6 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 import 'package:front_alex/src/preferencias.dart';
 import 'package:front_alex/src/config.dart';
-import 'package:front_alex/src/static.dart';
 
 
 class MensajesPage extends StatefulWidget {
@@ -19,6 +18,7 @@ class MensajesPage extends StatefulWidget {
 
 class _MensajesPageState extends State<MensajesPage> {
 
+  String _url = '';
   final prefs = new Preferencias();
   final FlutterTts flutterTts = FlutterTts();
 
@@ -27,6 +27,15 @@ class _MensajesPageState extends State<MensajesPage> {
 
   /// Lista de Mensajes
   List<dynamic> _mensajes = [];
+
+
+
+  @override
+  void initState(){
+    super.initState();
+    _url = prefs.url;
+    setState(() {  });
+  }
 
 
   @override
@@ -129,7 +138,7 @@ class _MensajesPageState extends State<MensajesPage> {
   void _consultarMensajes( BuildContext context ) async {
 
     try {
-      String url_base = config['url_base'];
+      String url_base = _url + config['url_base'];
 
       Map<String, String> headers = {
         "token": prefs.token
@@ -386,7 +395,7 @@ class _MensajesPageState extends State<MensajesPage> {
 
     try {
       print(' .................... Borrando mensaje ..................... ');
-      String url_base = config['url_base'];
+      String url_base = _url + config['url_base'];
 
       Map<String, String> headers = {
         "token": prefs.token
